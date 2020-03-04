@@ -29,6 +29,7 @@ class window.PaperJSApp
   
   constructor: (ops)->
     this.name = ops.name or "paperjs app"
+    this.opacity = ops.opacity or 1
     @setup(ops)
     console.log "✓ Paperjs Functionality"
     
@@ -118,6 +119,7 @@ class window.ColoringBook extends PaperJSApp
       gui.add this, "clear"
       gui.add this, "load_page"
       gui.add this, "save_svg"
+      gui.add this, "opacity", 0, 1
     @load_page()
     
   load_page: ()->
@@ -250,9 +252,9 @@ class window.ColoringBook extends PaperJSApp
       
     window.myInteraction2 = new paper.Tool
       name: "myInteraction2"  
-      onMouseDown: (event)->
+      onMouseDown: (event)=>
         scope = this
-        alertify.error "TODO!"
+        alertify.error "" + this.opacity
               
 
     # MUST BE THE LAST LINES IN CREATE_TOOLS          
