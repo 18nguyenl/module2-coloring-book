@@ -280,7 +280,7 @@ class window.ColoringBook extends PaperJSApp
           clickedRectangle = new paper.Rectangle(clickedTopLeft, clickedBottomRight)
           console.log clickedRectangle
           
-          allItems = paper.project.getItems(clickedRectangle.inside)
+          allItems = paper.project.getItems(clickedRectangle.intersect)
           console.log allItems
           
           el.item.set
