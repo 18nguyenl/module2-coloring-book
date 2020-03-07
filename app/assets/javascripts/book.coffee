@@ -167,6 +167,11 @@ class window.ColoringBook extends PaperJSApp
       else
         console.log "\t No tool found"
       console.log "\t✓ ", paper.tool.name,"Tool Enabled"
+      if (paper.tool.name == "mix color")
+        paper.project.getItem({name: "mixer"}).visible = true
+      else
+        paper.project.getItem({name: "mixer"}).visible = false
+      
       this.activeTool = v
 
   createTools: ()->
@@ -178,6 +183,7 @@ class window.ColoringBook extends PaperJSApp
       minDistance: 10
     
     cp = new ColorPalette()
+    cm = new ColorMixer()
     ###
     Turns everything red.
     ####
@@ -226,7 +232,7 @@ class window.ColoringBook extends PaperJSApp
         
         palette = paper.project.getItem
           name: "palette"
-          
+
         if palette and palette.lastColor
           hitResults = paper.project.hitTestAll event.point, hitOptions
           _.each hitResults, (h)->
@@ -251,7 +257,7 @@ class window.ColoringBook extends PaperJSApp
         alertify.error "TODO!"
       
     window.myInteraction2 = new paper.Tool
-      name: "myInteraction2"  
+      name: "mix color"  
       onMouseDown: (event)=>
         scope = this
         alertify.error "" + this.opacity
@@ -265,6 +271,46 @@ class window.ColoringBook extends PaperJSApp
     tool_matches = _.filter paper.tools, (t)-> t.name == scope.activeTool
     if tool_matches.length > 0
       paper.tool = tool_matches[0]
+
+class window.ColorMixer
+  constructor: ()->
+    console.log "Making Color Mixing"
+    this.g = new paper.Group
+      name: "mixer"
+      colorable: false
+    this.make_ui()
+  make_ui: ()->
+    mixer = new paper.Path.Circle
+        name: "mixer"
+        parent: this.g
+        radius: 20
+        fillColor: new paper.Color(1)
+        position: paper.view.center.clone().add(0)
+        strokeColor: new paper.Color(0)
+        strokeWidth: 4
+        strokeScaling: true
+        ui: true
+
+    # ADD BACKGROUND TO GROUP
+    bg = new paper.Path.Rectangle
+      parent: this.g
+      rectangle: this.g.bounds.expand(15)
+      fillColor: new paper.Color(0.9)
+      radius: 10
+      shadowBlur: 5
+      shadowOffset: new paper.Point(1, 1)
+      shadowColor: new paper.Color(0, 0, 0, 0.5)
+      ui: true
+      
+    bg.sendToBack()
+
+    # POSITION MIXER GROUP IN UI
+    this.g.set
+      position: paper.view.bounds.topLeft.add(new paper.Point(100, -1 * this.g.bounds.height + 150))
+    this.g.scale(2)
+    this.g.visible = false  
+  set_visible: (isVisible)->
+    this.g.visible = isVisible
       
 class window.ColorPalette 
   constructor: ()->
