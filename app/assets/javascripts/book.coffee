@@ -110,7 +110,7 @@ class window.PaperJSApp
 class window.ColoringBook extends PaperJSApp
   # Coloring page files are located in public > coloring_pages
   @DEFAULT_COLORING_PAGE: "/coloring_pages/mandala.svg"
-  @DEFAULT_TOOL: "rainbowBucket"
+  @DEFAULT_TOOL: "Mix Colors"
   constructor: (ops)->
     super ops # Adds core functionality from PaperJSApp
     console.log "✓ ColoringBook Functionality"
@@ -167,7 +167,8 @@ class window.ColoringBook extends PaperJSApp
       else
         console.log "\t No tool found"
       console.log "\t✓ ", paper.tool.name,"Tool Enabled"
-      if (paper.tool.name == "mix color")
+      console.log paper.tool.name
+      if (paper.tool.name == "Mix Colors")
         paper.project.getItem({name: "mixer"}).visible = true
       else
         paper.project.getItem({name: "mixer"}).visible = false
@@ -184,6 +185,7 @@ class window.ColoringBook extends PaperJSApp
     
     cp = new ColorPalette()
     cm = new ColorMixer()
+
     ###
     Turns everything red.
     ####
@@ -257,7 +259,7 @@ class window.ColoringBook extends PaperJSApp
         alertify.error "TODO!"
       
     window.myInteraction2 = new paper.Tool
-      name: "mix color"  
+      name: "Mix Colors"  
       onMouseDown: (event)=>
         scope = this
         opacity = this.opacity
@@ -269,10 +271,12 @@ class window.ColoringBook extends PaperJSApp
           newRed = (newColor.red * newColor.alpha) + (oldColor.red * oldColor.alpha * (1 - newColor.alpha))
           newGreen = (newColor.green * newColor.alpha) + (oldColor.green * oldColor.alpha * (1 - newColor.alpha))
           newBlue = (newColor.blue * newColor.alpha) + (oldColor.blue * oldColor.alpha * (1 - newColor.alpha))
+
+          # newRed = newColor.red + oldColor.red * (1 - newColor.alpha)
+          # newGreen = newColor.green + oldColor.green * (1 - newColor.alpha)
+          # newBlue = newColor.blue + oldColor.blue * (1 - newColor.alpha)
           newAlpha = newColor.alpha + oldColor.alpha * (1 - newColor.alpha)
           
-          console.log newColor
-
           return (new paper.Color(newRed, newGreen, newBlue, newAlpha))
 
         if palette and palette.lastColor
@@ -284,7 +288,7 @@ class window.ColoringBook extends PaperJSApp
             if h.item.ui
               return
             if h.item.name == "mixer swatch"
-              palette.lastColor = alpha_compose(h.item.fillColor, paper.Color(palette.lastColor.red, palette.lastColor.green, palette.lastColor.blue, opacity))
+              palette.lastColor = alpha_compose(h.item.fillColor, new paper.Color(palette.lastColor.red, palette.lastColor.green, palette.lastColor.blue, opacity))
             h.item.set
               fillColor: palette.lastColor
               
@@ -296,6 +300,11 @@ class window.ColoringBook extends PaperJSApp
     tool_matches = _.filter paper.tools, (t)-> t.name == scope.activeTool
     if tool_matches.length > 0
       paper.tool = tool_matches[0]
+
+      if (paper.tool.name == "Mix Colors")
+        paper.project.getItem({name: "mixer"}).visible = true
+      else
+        paper.project.getItem({name: "mixer"}).visible = false
 
 class window.ColorMixer
   constructor: ()->
