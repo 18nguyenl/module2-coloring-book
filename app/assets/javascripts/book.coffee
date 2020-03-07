@@ -265,6 +265,16 @@ class window.ColoringBook extends PaperJSApp
         palette = paper.project.getItem
           name: "palette"
 
+        alpha_compose = (oldColor, newColor)->
+          newRed = (newColor.red * newColor.alpha) + (oldColor.red * oldColor.alpha * (1 - newColor.alpha))
+          newGreen = (newColor.green * newColor.alpha) + (oldColor.green * oldColor.alpha * (1 - newColor.alpha))
+          newBlue = (newColor.blue * newColor.alpha) + (oldColor.blue * oldColor.alpha * (1 - newColor.alpha))
+          newAlpha = newColor.alpha + oldColor.alpha * (1 - newColor.alpha)
+          
+          console.log newColor
+
+          return (new paper.Color(newRed, newGreen, newBlue, newAlpha))
+
         if palette and palette.lastColor
           hitResults = paper.project.hitTestAll event.point, hitOptions
           _.each hitResults, (h)->
@@ -273,13 +283,10 @@ class window.ColoringBook extends PaperJSApp
               return
             if h.item.ui
               return
-
-            console.log palette.lastColor
-            h.item.set
-              fillColor: new paper.Color(palette.lastColor.red, palette.lastColor.green, palette.lastColor.blue, opacity)
-              
             if h.item.name == "mixer swatch"
-              palette.lastColor = h.item.fillColor.clone()
+              palette.lastColor = alpha_compose(h.item.fillColor, paper.Color(palette.lastColor.red, palette.lastColor.green, palette.lastColor.blue, opacity))
+            h.item.set
+              fillColor: palette.lastColor
               
     # MUST BE THE LAST LINES IN CREATE_TOOLS          
     scope.updateToolController()
@@ -302,7 +309,7 @@ class window.ColorMixer
         name: "mixer swatch"
         parent: this.g
         radius: 20
-        fillColor: new paper.Color(1)
+        fillColor: new paper.Color(1, 1, 1, 1)
         position: paper.view.center.clone().add(0)
         strokeColor: new paper.Color(0)
         strokeWidth: 4
