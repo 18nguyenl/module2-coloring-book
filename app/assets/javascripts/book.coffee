@@ -260,7 +260,23 @@ class window.ColoringBook extends PaperJSApp
       name: "mix color"  
       onMouseDown: (event)=>
         scope = this
-        alertify.error "" + this.opacity
+        
+        palette = paper.project.getItem
+          name: "palette"
+
+        if palette and palette.lastColor
+          hitResults = paper.project.hitTestAll event.point, hitOptions
+          _.each hitResults, (h)->
+            # Don't color black lines
+            if h.item.fillColor.brightness == 0
+              return
+            if h.item.ui
+              return
+
+            console.log h.item
+            # if h.item.name == "mixer swatch"
+            h.item.set
+              fillColor: palette.lastColor
               
 
     # MUST BE THE LAST LINES IN CREATE_TOOLS          
@@ -281,7 +297,7 @@ class window.ColorMixer
     this.make_ui()
   make_ui: ()->
     mixer = new paper.Path.Circle
-        name: "mixer"
+        name: "mixer swatch"
         parent: this.g
         radius: 20
         fillColor: new paper.Color(1)
@@ -289,7 +305,6 @@ class window.ColorMixer
         strokeColor: new paper.Color(0)
         strokeWidth: 4
         strokeScaling: true
-        ui: true
 
     # ADD BACKGROUND TO GROUP
     bg = new paper.Path.Rectangle
