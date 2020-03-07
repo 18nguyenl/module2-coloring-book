@@ -260,7 +260,8 @@ class window.ColoringBook extends PaperJSApp
       name: "mix color"  
       onMouseDown: (event)=>
         scope = this
-        
+        opacity = this.opacity
+
         palette = paper.project.getItem
           name: "palette"
 
@@ -273,12 +274,13 @@ class window.ColoringBook extends PaperJSApp
             if h.item.ui
               return
 
-            console.log h.item
-            # if h.item.name == "mixer swatch"
+            console.log palette.lastColor
             h.item.set
-              fillColor: palette.lastColor
+              fillColor: new paper.Color(palette.lastColor.red, palette.lastColor.green, palette.lastColor.blue, opacity)
               
-
+            if h.item.name == "mixer swatch"
+              palette.lastColor = h.item.fillColor.clone()
+              
     # MUST BE THE LAST LINES IN CREATE_TOOLS          
     scope.updateToolController()
     
