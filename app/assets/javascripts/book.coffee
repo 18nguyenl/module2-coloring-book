@@ -111,7 +111,7 @@ class window.PaperJSApp
 class window.ColoringBook extends PaperJSApp
   # Coloring page files are located in public > coloring_pages
   @DEFAULT_COLORING_PAGE: "/coloring_pages/mandala.svg"
-  @DEFAULT_TOOL: "blend colors"
+  @DEFAULT_TOOL: "Blend Colors"
   constructor: (ops)->
     super ops # Adds core functionality from PaperJSApp
     console.log "✓ ColoringBook Functionality"
@@ -121,6 +121,7 @@ class window.ColoringBook extends PaperJSApp
       gui.add this, "load_page"
       gui.add this, "save_svg"
       gui.add this, "opacity", 0, 1
+    this.selectedPaths = []
     @load_page()
     
   load_page: ()->
@@ -160,7 +161,7 @@ class window.ColoringBook extends PaperJSApp
     scope = this
     this.activeTool = "" 
     this.toolController = gui.add(this, "activeTool", _.pluck paper.tools, "name").listen()
-    this.toolController.onChange (v)->
+    this.toolController.onChange (v)=>
       console.log "FINISH"
       tool_matches = _.filter paper.tools, (t)-> t.name == v
       if tool_matches.length > 0
@@ -169,6 +170,8 @@ class window.ColoringBook extends PaperJSApp
         console.log "\t No tool found"
       console.log "\t✓ ", paper.tool.name,"Tool Enabled"
       console.log paper.tool.name
+      if (paper.tool.name == "Blend Colors")
+        this.selectedPaths.length = []
       if (paper.tool.name == "Mix Colors")
         paper.project.getItem({name: "mixer"}).visible = true
       else
@@ -182,7 +185,7 @@ class window.ColoringBook extends PaperJSApp
       stroke: false
       fill: true
       tolerance: 1
-      minDistance: 10
+      minDistance: 1
     
     cp = new ColorPalette()
     cm = new ColorMixer()
@@ -254,96 +257,24 @@ class window.ColoringBook extends PaperJSApp
         alertify.error "TODO!"
       
     window.myInteraction1 = new paper.Tool
-      name: "blend colors"
-      onMouseDown: (event)->
-        scope = this
-        #alertify.error "TODO!"
-        
-        ###
-        hitOptions2 =   
-          stroke: false
-          fill: true
-          tolerance: 1
-          minDistance: 30
-          bounds: true
-        ###
-        
-        # get all items in a rectangle
+      name: "Blend Colors"
+      onMouseDown: (event)=>
+        selectedPaths = this.selectedPaths
         hitResults = paper.project.hitTestAll event.point, hitOptions
-        
-        # go through each item
-        _.each hitResults, (el)->
+        _.each hitResults, (h)->
+          # Don't color black lines
+          if h.item.fillColor.brightness == 0
+            return
+          if h.item.ui
+            return
+
+          selectedPaths.push(h.item)
+          console.log selectedPaths
           
-          console.log el.item.bounds
-          clickedTopLeft = new paper.Point(el.item.bounds.x-5, el.item.bounds.y-5)
-          clickedBottomRight = new paper.Point(el.item.bounds.x+el.item.bounds.width+5, el.item.bounds.y+el.item.bounds.height+5)
-          clickedRectangle = new paper.Rectangle(clickedTopLeft, clickedBottomRight)
-          console.log clickedRectangle
-          
-          allItems = paper.project.getItems(clickedRectangle.intersect)
-          console.log allItems
-          
-          el.item.set
-            fillColor: "red"
-          hitResults2.item.set
-            fillColor: "blue"
-          
-          
-          #start Kennys code
-          ###
-          # save item to a variable
-          clickedPath = el.item
-          #console.log clickedPath
-          
-          # do a hit test of the newly created rectangle for all
-          # see overlapping option with the rectangle?
-          hitResults2 = paper.project.getItems clickedPath.intersects, clickedPath
-          
-          # go through each of the 'nearby' elements 
-          _.each hitResults2, (el2)->
-            console.log el2
-            # test if any spot of the element is inside the rectangle
-            if(el.item.bounds.intersects(el2.bounds))
-              el.fillColor = "red"
-              el2.fillColor = "blue"
-          ###
-              
             
-          
-          
-          ###
-          # get points to make a rectangle
-          console.log clickedPath.position
-          
-          # make a rectangular area over the element
-          rectangle = new paper.Path.Rectangle({
-            point: [clickedPath.position.x, clickedPath.position.y],
-            radius: 30,
-            fillColor: "red"});
-          
-          
-          ###
-          
-          # find items that are nearby the clicked element
-          # find average of all nearby elements, mix algorithm
-        
-        # recolor the clicked element
-        #fillColor: "red"
-        
-        # hitResults = paper.project.hitTestAll event.point, hitOptions
-        # _.each hitResults, (h)->
-        #   # Don't color black lines
-        #   if h.item.fillColor.brightness == 0
-        #     return
-        #   h.item.set
-        #     fillColor: "red"
-      
-      
-      
     window.myInteraction2 = new paper.Tool
       name: "Mix Colors"  
       onMouseDown: (event)=>
-        scope = this
         opacity = this.opacity
 
         palette = paper.project.getItem
