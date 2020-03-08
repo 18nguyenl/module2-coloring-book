@@ -185,7 +185,7 @@ class window.ColoringBook extends PaperJSApp
       stroke: false
       fill: true
       tolerance: 1
-      minDistance: 10
+      minDistance: 1
     
     cp = new ColorPalette()
     cm = new ColorMixer()
@@ -267,7 +267,7 @@ class window.ColoringBook extends PaperJSApp
             return
           if h.item.ui
             return
-          
+
           selectedPaths.push(h.item)
           avgColor = new paper.Color(0,0,0)
           
@@ -279,11 +279,10 @@ class window.ColoringBook extends PaperJSApp
           _.each selectedPaths, (el)=>
             el.set
               fillColor: avgColor
-      
+
     window.myInteraction2 = new paper.Tool
       name: "Mix Colors"  
       onMouseDown: (event)=>
-        scope = this
         opacity = this.opacity
 
         palette = paper.project.getItem
